@@ -17,11 +17,18 @@ pub struct Trace {
 }
 
 ///|
+#derive(Debug, Eq)
 pub(all) enum Comparison {
   Match(Int)
   Different(Int, String, String, String, Int64, Int64)
   LengthMismatch(Int, Int)
-} derive(Debug, Eq)
+}
+
+///|
+pub extend Comparison with @debug.Debug::{to_repr}
+
+///|
+pub extend Comparison with Eq::{not_equal, equal}
 
 ///|
 priv struct Tokens {
