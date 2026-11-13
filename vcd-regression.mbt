@@ -12,16 +12,16 @@ struct Sample {
 ///|
 pub struct Trace {
   priv signals : Array[String]
-  priv widths : Array[Int]
+  priv widths : Array[Int32]
   priv samples : Array[Sample]
 }
 
 ///|
 #derive(Debug, Eq)
 pub(all) enum Comparison {
-  Match(Int)
-  Different(Int, String, String, String, Int64, Int64)
-  LengthMismatch(Int, Int)
+  Match(Int32)
+  Different(Int32, String, String, String, Int64, Int64)
+  LengthMismatch(Int32, Int32)
 }
 
 ///|
@@ -33,7 +33,7 @@ pub extend Comparison with Eq::{not_equal, equal}
 ///|
 priv struct Tokens {
   text : String
-  mut offset : Int
+  mut offset : Int32
 }
 
 ///|
@@ -97,7 +97,7 @@ fn time_unit(token : String) -> Int64 raise TraceError {
 ///|
 priv struct Signal {
   code : String
-  width : Int
+  width : Int32
 }
 
 ///|
@@ -129,7 +129,7 @@ fn declarations(
           if signals.contains(path) {
             raise InvalidTrace("ambiguous signal \{path}")
           }
-          signals[path] = { code, width }
+          signals[path] = { code, width, }
         }
       ("$enddefinitions", []) => {
         if scale == 0L || !scope.is_empty() {
@@ -159,7 +159,7 @@ fn resolve(
 }
 
 ///|
-fn normalize(value : String, width : Int) -> String raise TraceError {
+fn normalize(value : String, width : Int32) -> String raise TraceError {
   let bits = value.to_lower()
   if bits.is_empty() || bits.length() > width {
     raise InvalidTrace("invalid vector width")
@@ -218,7 +218,7 @@ pub fn capture(
   reset_name : String,
   names : Array[String],
 ) -> Trace raise TraceError {
-  let tokens : Tokens = { text, offset: 0 }
+  let tokens : Tokens = { text, offset: 0, }
   let (scale, signals) = declarations(tokens)
   let clock = resolve(signals, clock_name)
   let reset = resolve(signals, reset_name)
@@ -231,7 +231,7 @@ pub fn capture(
     )
   }
   let watched = []
-  let widths : Map[String, Int] = Map([(clock.code, 1), (reset.code, 1)])
+  let widths : Map[String, Int32] = Map([(clock.code, 1), (reset.code, 1)])
   for name in names {
     let signal = resolve(signals, name)
     if widths.get(signal.code) is Some(width) && width != signal.width {

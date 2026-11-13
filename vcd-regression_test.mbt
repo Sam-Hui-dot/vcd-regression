@@ -1,8 +1,8 @@
 ///|
 fn waveform(
   scale : String,
-  delay : Int,
-  period : Int,
+  delay : Int32,
+  period : Int32,
   last_value : String,
 ) -> String {
   let first = delay + period
@@ -19,14 +19,25 @@ fn waveform(
 
 ///|
 test "compare the same cycles even if timescale and reset time differ" {
-  let base = @vcd-regression.capture(waveform("1ns", 2, 1, "10"), "tb.clk", "tb.rst_n", ["tb.q"])
-  let same = @vcd-regression.capture(waveform("100ps", 40, 10, "0010"), "tb.clk", "tb.rst_n", [
-    "tb.q",
-  ])
+  let base = @vcd-regression.capture(
+    waveform("1ns", 2, 1, "10"),
+    "tb.clk",
+    "tb.rst_n",
+    ["tb.q"],
+  )
+  let same = @vcd-regression.capture(
+    waveform("100ps", 40, 10, "0010"),
+    "tb.clk",
+    "tb.rst_n",
+    ["tb.q"],
+  )
   assert_eq(@vcd-regression.compare(base, same), Match(2))
-  let wrong = @vcd-regression.capture(waveform("100ps", 40, 10, "X"), "tb.clk", "tb.rst_n", [
-    "tb.q",
-  ])
+  let wrong = @vcd-regression.capture(
+    waveform("100ps", 40, 10, "X"),
+    "tb.clk",
+    "tb.rst_n",
+    ["tb.q"],
+  )
   assert_eq(
     @vcd-regression.compare(base, wrong),
     Different(2, "tb.q", "0010", "xxxx", 5_000_000L, 7_000_000L),
@@ -35,7 +46,12 @@ test "compare the same cycles even if timescale and reset time differ" {
 
 ///|
 test "changing a signal width cannot be reported as matching" {
-  let base = @vcd-regression.capture(waveform("1ns", 2, 1, "10"), "tb.clk", "tb.rst_n", ["tb.q"])
+  let base = @vcd-regression.capture(
+    waveform("1ns", 2, 1, "10"),
+    "tb.clk",
+    "tb.rst_n",
+    ["tb.q"],
+  )
   let altered = @vcd-regression.capture(
     waveform("1ns", 2, 1, "10").replace_all(
       old="$var wire 4 c",

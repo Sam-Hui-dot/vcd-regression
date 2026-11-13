@@ -6,7 +6,7 @@ extern "js" fn read_text(path : String) -> String =
   #|}
 
 ///|
-extern "js" fn exit_with(code : Int) -> Unit = "(code) => { process.exitCode = code; }"
+extern "js" fn exit_with(code : Int32) -> Unit = "(code) => { process.exitCode = code; }"
 
 ///|
 fn main {
