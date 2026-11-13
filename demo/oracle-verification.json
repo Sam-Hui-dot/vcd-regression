@@ -1,0 +1,40 @@
+[
+  {
+    "design": "tb_hex_counter_top",
+    "variant": "equivalent",
+    "cycles": 986,
+    "first_difference": null,
+    "cli": "PASS: 986 sampled cycles"
+  },
+  {
+    "design": "tb_hex_counter_top",
+    "variant": "faulty",
+    "cycles": 986,
+    "first_difference": [
+      828,
+      "tb_hex_counter_top.count",
+      "1111",
+      "0000"
+    ],
+    "cli": "FAIL cycle 828, tb_hex_counter_top.count: expected 1111 at 8305000000 fs, got 0000 at 8305000000 fs"
+  },
+  {
+    "design": "tb_uart",
+    "variant": "equivalent",
+    "cycles": 664,
+    "first_difference": null,
+    "cli": "PASS: 664 sampled cycles"
+  },
+  {
+    "design": "tb_uart",
+    "variant": "faulty",
+    "cycles": 664,
+    "first_difference": [
+      146,
+      "tb_uart.txd",
+      "1",
+      "0"
+    ],
+    "cli": "FAIL cycle 146, tb_uart.txd: expected 1 at 1495000000 fs, got 0 at 1495000000 fs"
+  }
+]

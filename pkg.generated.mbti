@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Sam-Hui-dot/vcd-regression"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn capture(String, String, String, Array[String]) -> Trace raise TraceError
+
+pub fn compare(Trace, Trace) -> Comparison raise TraceError
+
+// Errors
+pub suberror TraceError {
+  InvalidTrace(String)
+}
+
+// Types and methods
+pub(all) enum Comparison {
+  Match(Int)
+  Different(Int, String, String, String, Int64, Int64)
+  LengthMismatch(Int, Int)
+} derive(Eq, @debug.Debug)
+
+type Sample
+
+pub struct Trace {
+  // private fields
+}
+
+// Type aliases
+
+// Traits

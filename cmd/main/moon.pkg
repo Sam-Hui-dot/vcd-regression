@@ -1,0 +1,6 @@
+import {
+  "Sam-Hui-dot/vcd-regression" @trace,
+  "moonbitlang/core/env",
+}
+
+pkgtype(kind: "executable")
