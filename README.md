@@ -37,3 +37,16 @@ python demo/verify-oracle.py _build/js/debug/build/cmd/main/main.js
 实际回执位于 `demo/oracle-verification.json`。重建 UART 波形可运行
 `demo/uart/generate.ps1 -VivadoBin 'D:\Xilinx\Vivado\2018.3\bin'`。
 算法取舍、复用基线和 AI 使用情况见 DESIGN.md。
+
+## CI 中读取 JSON 结果
+
+在文件参数前加 `--json` 可输出单行 JSON，退出码仍为 0 / 1 / 2。
+`status` 为 `match`、`different`、`length_mismatch` 或 `invalid`；
+`cycles` 在匹配时表示采样数，在差异时表示首次不同的周期。
+`baseline_fs` 和 `candidate_fs` 使用十进制字符串，避免 JavaScript 大整数精度损失。
+`length_mismatch` 的 `expected`、`actual` 是两份文件的采样数。
+文件系统读取失败与参数不足仍输出原来的诊断信息，不属于 JSON 结果。
+
+```powershell
+moon run cmd/main -- --json demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top.clk tb_hex_counter_top.rst_n tb_hex_counter_top.count
+```

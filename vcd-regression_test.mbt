@@ -19,13 +19,13 @@ fn waveform(
 
 ///|
 test "duplicate selections are rejected rather than compared twice" {
-  try @vcd-regression.capture(
-    waveform("1ns", 2, 1, "10"),
-    "tb.clk",
-    "tb.rst_n",
-    ["tb.q", "tb.q"],
-  ) catch {
-    error => assert_true(error is InvalidTrace("duplicate selected signal: tb.q"))
+  try
+    @vcd-regression.capture(waveform("1ns", 2, 1, "10"), "tb.clk", "tb.rst_n", [
+      "tb.q", "tb.q",
+    ])
+  catch {
+    error =>
+      assert_true(error is InvalidTrace("duplicate selected signal: tb.q"))
   } noraise {
     _ => fail("duplicate selection must fail")
   }
@@ -61,12 +61,12 @@ test "compare the same cycles even if timescale and reset time differ" {
 ///|
 test "non-logic updates of selected signals are rejected" {
   for value in ["r1.5 c", "shello c"] {
-    let invalid = waveform("1ns", 2, 1, "10").replace_all(
-      old="b1 c",
-      new=value,
-    )
+    let invalid = waveform("1ns", 2, 1, "10").replace_all(old="b1 c", new=value)
     try @vcd-regression.capture(invalid, "tb.clk", "tb.rst_n", ["tb.q"]) catch {
-      error => assert_true(error is InvalidTrace("non-logic value for selected signal"))
+      error =>
+        assert_true(
+          error is InvalidTrace("non-logic value for selected signal"),
+        )
     } noraise {
       _ => fail("a selected signal must contain logic values")
     }
