@@ -273,8 +273,12 @@ pub fn capture(
             _ => raise InvalidTrace("unsupported value directive \{token}")
           }
         114 | 82 | 115 | 83 =>
-          if tokens.next() is None {
-            raise InvalidTrace("missing value identifier")
+          match tokens.next() {
+            None => raise InvalidTrace("missing value identifier")
+            Some(code) =>
+              if widths.contains(code) {
+                raise InvalidTrace("non-logic value for selected signal")
+              }
           }
         98 | 66 =>
           match tokens.next() {
