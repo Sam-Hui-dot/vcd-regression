@@ -231,8 +231,13 @@ pub fn capture(
     )
   }
   let watched = []
+  let selected : Map[String, Bool] = Map([])
   let widths : Map[String, Int32] = Map([(clock.code, 1), (reset.code, 1)])
   for name in names {
+    if selected.contains(name) {
+      raise InvalidTrace("duplicate selected signal: \{name}")
+    }
+    selected[name] = true
     let signal = resolve(signals, name)
     if widths.get(signal.code) is Some(width) && width != signal.width {
       raise InvalidTrace("conflicting width for \{name}")

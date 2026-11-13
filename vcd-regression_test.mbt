@@ -18,6 +18,20 @@ fn waveform(
 }
 
 ///|
+test "duplicate selections are rejected rather than compared twice" {
+  try @vcd-regression.capture(
+    waveform("1ns", 2, 1, "10"),
+    "tb.clk",
+    "tb.rst_n",
+    ["tb.q", "tb.q"],
+  ) catch {
+    error => assert_true(error is InvalidTrace("duplicate selected signal: tb.q"))
+  } noraise {
+    _ => fail("duplicate selection must fail")
+  }
+}
+
+///|
 test "compare the same cycles even if timescale and reset time differ" {
   let base = @vcd-regression.capture(
     waveform("1ns", 2, 1, "10"),
