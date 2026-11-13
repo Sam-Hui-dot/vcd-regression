@@ -50,3 +50,22 @@ python demo/verify-oracle.py _build/js/debug/build/cmd/main/main.js
 ```powershell
 moon run cmd/main -- --json demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top.clk tb_hex_counter_top.rst_n tb_hex_counter_top.count
 ```
+
+## 在自己的 MoonBit 项目中调用
+
+运行 `moon add Sam-Hui-dot/vcd-regression@0.2.0`，在 `moon.pkg` 中导入
+`"Sam-Hui-dot/vcd-regression" @vcd`。分别调用
+`@vcd.capture(text, clock, reset, signals)` 得到两份 Trace，再调用
+`@vcd.compare(baseline, candidate)`。可匹配的结果为：
+
+- `@vcd.Match(count)`：全部采样周期一致。
+- `@vcd.Different(cycle, signal, expected, actual, baseline_fs, candidate_fs)`：首次值差异。
+- `@vcd.LengthMismatch(expected_count, actual_count)`：共同前缀一致，但采样数不同。
+
+`capture` 和 `compare` 均可能抛出 `@vcd.InvalidTrace(message)`，调用者应处理输入错误。
+预期与实际仅表示传入参数的顺序，工具不会判定哪一版设计符合规格。
+同一 Trace 选择的信号顺序也必须相同。时间戳以飞秒表示；周期从 1 开始。
+
+`python demo/verify-consumer.py` 会建立独立模块，通过工作区依赖调用公开 API，
+验证调用者无需访问库的私有数据结构。这项检查使用本地源码；发布版本可以通过上述
+`moon add` 命令安装。核心库适用 JS、WasmGC 和 Native；文件 CLI 使用 Node.js。
