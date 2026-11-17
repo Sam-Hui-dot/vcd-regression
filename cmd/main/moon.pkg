@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/string",
   "Sam-Hui-dot/vcd-regression" @trace,
   "moonbitlang/core/env",
 }

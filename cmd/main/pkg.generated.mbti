@@ -4,8 +4,10 @@ package "Sam-Hui-dot/vcd-regression/cmd/main"
 // Values
 
 // Errors
+type ArgumentError
 
 // Types and methods
+type Options
 
 // Type aliases
 

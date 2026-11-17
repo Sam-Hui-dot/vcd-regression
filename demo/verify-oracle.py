@@ -77,6 +77,33 @@ for folder, scope, names in cases:
             assert f"got {actual} " in result.stdout
         else:
             assert f"PASS: {len(base)} sampled cycles" in result.stdout
+        # Independently enumerate ALL differing values, then check bounded reports.
+        expected_diffs = [
+            (cycle + 1, signal, expected, actual)
+            for cycle, (left, right) in enumerate(zip(base, run))
+            for signal, expected, actual in zip(signals, left[1], right[1])
+            if expected != actual
+        ]
+        for skip, limit in [(0, len(base)), (max(0, first[0] - 2) if first else 0, 5)]:
+            selected = [row for row in expected_diffs if skip < row[0] <= skip + limit]
+            process = subprocess.run(
+                ["node", str(args.cli), "--report", "--json", "--max-diffs", "3",
+                 "--skip-cycles", str(skip), "--cycles", str(limit),
+                 str(folder / "baseline.vcd"), str(folder / (variant + ".vcd")),
+                 clock, reset] + signals, capture_output=True, text=True,
+            )
+            assert process.returncode == (1 if selected else 0), process.stderr
+            report = json.loads(process.stdout)
+            assert report["difference_count"] == str(len(selected)), report
+            assert report["differing_cycles"] == len({row[0] for row in selected}), report
+            assert report["truncated"] == (len(selected) > 3), report
+            assert [(d["cycle"], d["signal"], d["expected"], d["actual"])
+                    for d in report["differences"]] == selected[:3], report
+            for summary in report["signals"]:
+                rows = [d for d in selected if d[1] == summary["signal"]]
+                assert summary["differing_cycles"] == len(rows), summary
+                assert summary["first_cycle"] == (rows[0][0] if rows else None), summary
+                assert summary["last_cycle"] == (rows[-1][0] if rows else None), summary
         receipts.append({"design": scope, "variant": variant, "cycles": len(base),
                          "first_difference": first, "cli": result.stdout.strip()})
 print(json.dumps(receipts, ensure_ascii=False, indent=2))

@@ -28,3 +28,4 @@ jobs:
       - run: python demo/verify-cli.py _build/js/debug/build/cmd/main/main.js
 
       - run: python demo/verify-consumer.py
+      - run: python tools/source-lines.py

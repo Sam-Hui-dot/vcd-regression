@@ -53,7 +53,7 @@ moon run cmd/main -- --json demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top
 
 ## 在自己的 MoonBit 项目中调用
 
-运行 `moon add Sam-Hui-dot/vcd-regression@0.2.0`，在 `moon.pkg` 中导入
+运行 `moon add Sam-Hui-dot/vcd-regression@0.3.0`，在 `moon.pkg` 中导入
 `"Sam-Hui-dot/vcd-regression" @vcd`。分别调用
 `@vcd.capture(text, clock, reset, signals)` 得到两份 Trace，再调用
 `@vcd.compare(baseline, candidate)`。可匹配的结果为：
@@ -69,3 +69,25 @@ moon run cmd/main -- --json demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top
 `python demo/verify-consumer.py` 会建立独立模块，通过工作区依赖调用公开 API，
 验证调用者无需访问库的私有数据结构。这项检查使用本地源码；发布版本可以通过上述
 `moon add` 命令安装。核心库适用 JS、WasmGC 和 Native；文件 CLI 使用 Node.js。
+
+## 完整回归报告与周期区间（0.3.0）
+
+```powershell
+moon run cmd/main -- --report --json --max-diffs 20 demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top.clk tb_hex_counter_top.rst_n tb_hex_counter_top.count
+moon run cmd/main -- --skip-cycles 820 --cycles 20 --max-diffs 10 demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top.clk tb_hex_counter_top.rst_n tb_hex_counter_top.count
+```
+
+`--report` 扫描选定区间的全部采样，返回总差异值数、不同周期数、逐信号首次与最后差异周期及有上限的差异列表。
+`--max-diffs` 仅限制保留的明细，统计仍覆盖整个区间；`truncated` 表示明细被截断。
+`--skip-cycles` 从复位后的第一拍开始跳过，`--cycles` 限定之后最多检查多少拍，报告仍使用原始、从 1 开始的周期号。
+这些区间选项自动启用报告模式。未选区间默认比较完整采样；指定前缀时不会检查被排除的尾部。
+共同区间没有值差异但采样数不同会返回 `length_mismatch`，并列出两侧采样数。
+
+完整 JSON 与旧的首次差异 JSON 是两种模式。完整报告的 `difference_count` 和时间戳使用十进制字符串；
+`differences` 按周期、所选信号的顺序排列；没有差异的信号，其 `first_cycle`、`last_cycle` 为 null。
+文本模式也能输出完整报告。核心库入口为
+`regression_report(base, candidate, skip_cycles=0, cycles=20, max_differences=100)`，
+返回的报告提供 `to_json()` 和 `to_text()`；报告计算及 JSON 序列化均由 MoonBit 实现。
+
+源码统计命令为 `python tools/source-lines.py`。它排除测试、空行、纯注释、JS FFI 内容和构建产物；
+详细计数与验证说明见 [docs/VALIDATION.md](docs/VALIDATION.md)。

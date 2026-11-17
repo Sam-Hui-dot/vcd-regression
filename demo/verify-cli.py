@@ -27,3 +27,14 @@ assert json.loads(result.stdout)["status"] == "invalid", result.stdout
 usage = subprocess.run(["node", str(cli)], capture_output=True, text=True)
 assert usage.returncode == 2 and "Usage:" in usage.stdout, usage
 print("CLI JSON match, difference, invalid input and usage checks passed")
+
+for options in [["--cycles", "0"], ["--skip-cycles", "-1"], ["--max-diffs", "0"],
+                ["--max-diffs", "oops"], ["--unknown"], ["--cycles"]]:
+    bad = subprocess.run(["node", str(cli), "--json", *options,
+                          str(root / "baseline.vcd"), str(root / "equivalent.vcd"), *common],
+                         capture_output=True, text=True)
+    assert bad.returncode == 2, bad
+    assert json.loads(bad.stdout)["status"] == "invalid", bad.stdout
+help_result = subprocess.run(["node", str(cli), "--help"], capture_output=True, text=True)
+assert help_result.returncode == 0 and "--max-diffs" in help_result.stdout, help_result
+print("Report option validation and help passed")

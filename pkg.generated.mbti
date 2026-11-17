@@ -10,6 +10,12 @@ pub fn capture(String, String, String, Array[String]) -> Trace raise TraceError
 
 pub fn compare(Trace, Trace) -> Comparison raise TraceError
 
+pub fn comparison_json(Comparison) -> String
+
+pub fn invalid_json(String) -> String
+
+pub fn regression_report(Trace, Trace, skip_cycles? : Int32, cycles? : Int32, max_differences? : Int32) -> RegressionReport raise TraceError
+
 // Errors
 pub suberror TraceError {
   InvalidTrace(String)
@@ -26,7 +32,38 @@ pub fn Comparison::equal(Self, Self) -> Bool
 pub fn Comparison::not_equal(Self, Self) -> Bool
 pub fn Comparison::to_repr(Self) -> @debug.Repr
 
+pub struct Difference {
+  cycle : Int32
+  signal : String
+  expected : String
+  actual : String
+  baseline_fs : Int64
+  candidate_fs : Int64
+}
+
+pub struct RegressionReport {
+  status : String
+  start_cycle : Int32
+  compared_cycles : Int32
+  baseline_cycles : Int32
+  candidate_cycles : Int32
+  differing_cycles : Int32
+  difference_count : Int64
+  truncated : Bool
+  differences : Array[Difference]
+  signals : Array[SignalSummary]
+}
+pub fn RegressionReport::to_json(Self) -> String
+pub fn RegressionReport::to_text(Self) -> String
+
 type Sample
+
+pub struct SignalSummary {
+  signal : String
+  differing_cycles : Int32
+  first_cycle : Int32?
+  last_cycle : Int32?
+}
 
 pub struct Trace {
   // private fields
