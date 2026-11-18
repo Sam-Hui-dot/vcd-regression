@@ -42,13 +42,8 @@ test "input precheck catches an unmatched tail and mapped width mismatches" {
   let wider = text.replace_all(old="$var wire 4 c", new="$var wire 5 c")
   let pair = paired_fixture(text, wider)
   try pair.check_stimulus() catch {
-    error =>
-      assert_true(
-        error
-        is @vcd-regression.InvalidTrace(
-          "mapped input signal widths differ between traces"
-        ),
-      )
+    @vcd-regression.InvalidTrace(message) =>
+      assert_eq(message, "mapped input signal widths differ between traces")
   } noraise {
     _ => fail("mapped input widths must agree")
   }
