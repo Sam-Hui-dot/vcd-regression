@@ -53,7 +53,7 @@ moon run cmd/main -- --json demo/baseline.vcd demo/faulty.vcd tb_hex_counter_top
 
 ## 在自己的 MoonBit 项目中调用
 
-运行 `moon add Sam-Hui-dot/vcd-regression@0.3.0`，在 `moon.pkg` 中导入
+运行 `moon add Sam-Hui-dot/vcd-regression@0.4.0`，在 `moon.pkg` 中导入
 `"Sam-Hui-dot/vcd-regression" @vcd`。分别调用
 `@vcd.capture(text, clock, reset, signals)` 得到两份 Trace，再调用
 `@vcd.compare(baseline, candidate)`。可匹配的结果为：
@@ -91,3 +91,22 @@ moon run cmd/main -- --skip-cycles 820 --cycles 20 --max-diffs 10 demo/baseline.
 
 源码统计命令为 `python tools/source-lines.py`。它排除测试、空行、纯注释、JS FFI 内容和构建产物；
 详细计数与验证说明见 [docs/VALIDATION.md](docs/VALIDATION.md)。
+
+## 信号映射与输入预检（0.4.0）
+
+重构后比较两版不同名的输出，使用 `--map BASE_PATH CANDIDATE_PATH`。它可以重复，并可与位置参数指定的同名信号混用。结果统一使用基线路径。若候选波形的时钟或低有效复位也改了层级或名字，分别用 `--candidate-clock PATH` 和 `--candidate-reset PATH` 覆盖。
+
+```powershell
+moon run cmd/main -- --json --report --candidate-clock candidate.clock --candidate-reset candidate.reset_n --map tb_uart.txd candidate.serial_out --input tb_uart.data candidate.input_data --input tb_uart.valid candidate.input_valid baseline.vcd candidate.vcd tb_uart.clk tb_uart.rst_n
+```
+
+每个 `--input BASE_PATH CANDIDATE_PATH` 增加一组待核对的输入。工具先检查完整的复位后采样序列，通过后才比较输出。输出的周期窗口不会缩短输入预检范围。输入不一致、采样数不同或输入出现 X/Z 时，退出码为 `3`，JSON 状态分别为 `stimulus_mismatch`、`stimulus_length_mismatch` 或 `stimulus_unknown`。缺少信号、重复映射或位宽无法匹配属于输入错误，退出码为 `2`。未配置 `--input` 时沿用原比较行为。该检查覆盖已选择信号在时钟采样点的值。
+
+库调用者用 `capture_pair` 按 `(基线路径, 候选路径)` 提供时钟、复位、输入和输出映射。先调用 `pair.check_stimulus()`，再将 `pair.baseline` 与 `pair.candidate` 交给 `compare` 或 `regression_report`。
+
+可复验的 UART 演示使用仓库内录得的波形。脚本重命名候选波形的顶层、时钟、复位及信号，验证等价版 664 拍一致、故障版第 146 拍首次出现输出差异，并通过修改一条输入记录验证预检退出码。这些记录变换用于验证比较器。
+
+```powershell
+moon build
+python demo/verify-mapping.py _build/js/debug/build/cmd/main/main.js
+```

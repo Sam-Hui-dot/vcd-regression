@@ -26,6 +26,7 @@ jobs:
       - run: python -m pip install vcdvcd==2.6.0
       - run: python demo/verify-oracle.py _build/js/debug/build/cmd/main/main.js
       - run: python demo/verify-cli.py _build/js/debug/build/cmd/main/main.js
+      - run: python demo/verify-mapping.py _build/js/debug/build/cmd/main/main.js
 
       - run: python demo/verify-consumer.py
       - run: python tools/source-lines.py

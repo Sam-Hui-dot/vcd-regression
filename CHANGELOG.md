@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- Map baseline and candidate paths for outputs, clocks, resets and stimulus inputs.
+- Stop output comparison when configured stimulus samples differ, contain X/Z, or have unequal lengths.
+- Verify both features with the recorded UART traces and explicit fixture mutations.
+
 ## 0.3.0
 
 - Add cycle-window regression reports with bounded detail lists and full-window statistics.

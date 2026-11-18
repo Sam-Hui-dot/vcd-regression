@@ -8,6 +8,8 @@ import {
 // Values
 pub fn capture(String, String, String, Array[String]) -> Trace raise TraceError
 
+pub fn capture_pair(String, String, (String, String), (String, String), Array[(String, String)], inputs? : Array[(String, String)]) -> TracePair raise TraceError
+
 pub fn compare(Trace, Trace) -> Comparison raise TraceError
 
 pub fn comparison_json(Comparison) -> String
@@ -65,9 +67,25 @@ pub struct SignalSummary {
   last_cycle : Int32?
 }
 
+pub(all) enum StimulusCheck {
+  StimulusMatch(Int32)
+  StimulusDifference(Difference)
+  StimulusLengthMismatch(Int32, Int32)
+  StimulusUnknown(Int32, String, String, String)
+}
+pub fn StimulusCheck::to_json(Self) -> String
+pub fn StimulusCheck::to_text(Self) -> String
+
 pub struct Trace {
   // private fields
 }
+
+pub struct TracePair {
+  baseline : Trace
+  candidate : Trace
+  // private fields
+}
+pub fn TracePair::check_stimulus(Self) -> StimulusCheck? raise TraceError
 
 // Type aliases
 
